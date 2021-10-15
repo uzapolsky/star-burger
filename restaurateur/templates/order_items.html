@@ -1,5 +1,7 @@
 {% extends 'base_restaurateur_page.html' %}
 
+{% load restaurateur_tags %}
+
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
 {% block content %}
@@ -21,6 +23,7 @@
       <th>Статус заказа</th>
       <th>Способ оплаты</th>
       <th>Комментарий</th>
+      <th>Рестораны</th>
       <th>Ссылка на админку</th>
     </tr>
 
@@ -34,6 +37,16 @@
         <td>{{ order.status }}</td>
         <td>{{ order.payment }}</td>
         <td>{{ order.comment }}</td>
+        <td>
+          <details>
+            <summary>Развернуть</summary>
+            <ul>
+              {% for restaurant in restaurants|get_value:order.id %}
+                <li>{{ restaurant }}</li>
+              {% endfor %}
+            </ul>
+          </details>
+        </td>
         <td>
           <a href="{% url 'admin:foodcartapp_order_change' order.id %}?next={{ request.get_full_path|urlencode }}">
             Редактировать
