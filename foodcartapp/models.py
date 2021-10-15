@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import DecimalField, F, Sum
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -174,6 +175,27 @@ class Order(models.Model):
         max_length=13,
         choices=payment_methods,
         default='not_selected',
+        db_index=True
+    )
+    comment = models.TextField(
+        verbose_name='комментарий',
+        blank=True
+    )
+    created_at = models.DateTimeField(
+        verbose_name='время создания заказа',
+        default=timezone.now,
+        db_index=True
+    )
+    confirmed_at = models.DateTimeField(
+        verbose_name='время подтверждения заказа',
+        null=True,
+        blank=True,
+        db_index=True
+    )
+    delivered_at = models.DateTimeField(
+        verbose_name='время доставки заказа',
+        null=True,
+        blank=True,
         db_index=True
     )
 
