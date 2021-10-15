@@ -40,11 +40,9 @@
         <td>
           <details>
             <summary>Развернуть</summary>
-            <ul>
               {% for restaurant in restaurants|get_value:order.id %}
-                <li>{{ restaurant }}</li>
+                <p>{{ restaurant }}</p>
               {% endfor %}
-            </ul>
           </details>
         </td>
         <td>

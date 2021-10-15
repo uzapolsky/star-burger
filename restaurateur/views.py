@@ -1,13 +1,16 @@
+import requests
 from django import forms
-from django.shortcuts import redirect, render
-from django.views import View
-from django.urls import reverse_lazy
-from django.contrib.auth.decorators import user_passes_test
-
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views import View
+from geopy import distance
 
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from places.models import Place
 
 
 class Login(forms.Form):
@@ -94,26 +97,78 @@ def view_restaurants(request):
     })
 
 
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return 0,0
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lon, lat
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    apikey = settings.YA_API
+
     orders = Order.objects.all().get_order_price()
-    restaurantmenus = RestaurantMenuItem.objects.all()
+    all_addresses = list(orders.values_list('address', flat=True))
+    restaurants = Restaurant.objects.all()
+    all_addresses.extend(list(restaurants.values_list('address', flat=True)))
+    exist_addresses = list(Place.objects.all().values_list('address', flat=True))
+
+    addresses_to_add = list(set(all_addresses) - set(exist_addresses))
+    for address in addresses_to_add:
+        print(address)
+        lon, lat = fetch_coordinates(apikey, address)
+        Place.objects.create(
+            address=address,
+            lon=lon,
+            lat=lat
+        )
+
+    restaurantmenus = RestaurantMenuItem.objects. \
+        select_related('product'). \
+        select_related('restaurant'). \
+        all()
     restaurants_items = {}
     for restaurantmenu in restaurantmenus:
-        restaurant_name = restaurantmenu.restaurant.name
-        if restaurant_name not in restaurants_items.keys():
-            restaurants_items[restaurant_name] = []
-        restaurants_items[restaurant_name].append(restaurantmenu.product.id)
+        rest = restaurantmenu.restaurant
+        if rest not in restaurants_items.keys():
+            restaurants_items[rest] = []
+        restaurants_items[rest].append(restaurantmenu.product.id)
 
-    restaurants = {}
+    places = Place.objects.all()
+
+    order_restaurants = {}
     for order in orders:
-        order_items = order.order_items.all()
-        order_item_ids = [order_item.product.id for order_item in order_items]
-        restaurants[order.id] = []
-        for restaurant in restaurants_items.keys():
-            if all(prdct in restaurants_items[restaurant] for prdct in order_item_ids):
-                restaurants[order.id].append(restaurant)
+        order_items = order.order_items.select_related('product').all()
 
+        order_item_ids = [order_item.product.id for order_item in order_items]
+        order_restaurants[order.id] = []
+        for rest in restaurants_items.keys():
+            if all(prdct in restaurants_items[rest] for prdct in order_item_ids):
+                place_rest = places.get(address=rest.address)
+                place_order = places.get(address=order.address)
+
+                dist = round(distance.distance(
+                        (place_order.lon, place_order.lat), (place_rest.lon, place_rest.lat)
+                    ).km, 2)
+                order_restaurants[order.id].append([rest.name, str(dist)])
+
+    for order in order_restaurants:
+        sorted_rests = sorted(order_restaurants[order], key=lambda rest: float(rest[1]))
+        rests_output = [f'{rest[0]} - {rest[1]} км \n' for rest in sorted_rests]
+        order_restaurants[order] = rests_output
+    print(order_restaurants)
     return render(request, template_name='order_items.html', context={
-        'orders': orders, 'restaurants': restaurants
+        'orders': orders, 'restaurants': order_restaurants
     })
