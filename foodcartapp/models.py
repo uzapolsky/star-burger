@@ -198,6 +198,14 @@ class Order(models.Model):
         blank=True,
         db_index=True
     )
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        verbose_name='ресторан',
+        blank=True,
+        null=True
+    )
 
     @property
     def status(self):
