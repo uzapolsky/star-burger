@@ -108,7 +108,7 @@ def fetch_coordinates(apikey, address):
     found_places = response.json()['response']['GeoObjectCollection']['featureMember']
 
     if not found_places:
-        return 0, 0
+        return None
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
@@ -127,13 +127,16 @@ def view_orders(request):
 
     addresses_to_add = list(set(all_addresses) - set(exist_addresses))
     for address in addresses_to_add:
-        print(address)
-        lon, lat = fetch_coordinates(apikey, address)
-        Place.objects.create(
-            address=address,
-            lon=lon,
-            lat=lat
-        )
+        coordinates = fetch_coordinates(apikey, address)
+        if coordinates:
+            lon, lat = coordinates
+            Place.objects.create(
+                address=address,
+                lon=lon,
+                lat=lat
+            )
+        else:
+            Place.objects.create(address=address)
 
     restaurantmenus = RestaurantMenuItem.objects. \
         select_related('product'). \
@@ -155,7 +158,7 @@ def view_orders(request):
         order_item_ids = [order_item.product.id for order_item in order_items]
         order_restaurants[order.id] = []
         for rest in restaurants_items.keys():
-            if all(prdct in restaurants_items[rest] for prdct in order_item_ids):
+            if all(product in restaurants_items[rest] for product in order_item_ids):
                 place_rest = places.get(address=rest.address)
                 place_order = places.get(address=order.address)
 

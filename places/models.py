@@ -11,13 +11,13 @@ class Place(models.Model):
         max_digits=16,
         decimal_places=14,
         verbose_name='долгота',
-        blank=True
+        null=True
         )
     lat = models.DecimalField(
         max_digits=16,
         decimal_places=14,
         verbose_name='широта',
-        blank=True
+        null=True
         )
     updated_at = models.DateTimeField(
         verbose_name='дата получения координат',
