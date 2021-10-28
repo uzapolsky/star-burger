@@ -1,5 +1,3 @@
-import json
-
 from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
@@ -86,17 +84,17 @@ def register_order(request):
     serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
-        firstname = serializer.validated_data['firstname'],
-        lastname = serializer.validated_data['lastname'],
-        phonenumber = serializer.validated_data['phonenumber'],
-        address = serializer.validated_data['address']
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
     )
     for product in serializer.validated_data['products']:
         OrderItem.objects.create(
-            order = order,
-            product = product['product'],
-            quantity = product['quantity'],
-            price = product['product'].price
+            order=order,
+            product=product['product'],
+            quantity=product['quantity'],
+            price=product['product'].price
         )
     
     return Response(serializer.data)

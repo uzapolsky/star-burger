@@ -163,14 +163,14 @@ class Order(models.Model):
         'адрес',
         max_length=100,
     )
-    order_status = models.CharField(
+    status = models.CharField(
         verbose_name='статус',
         max_length=13,
         choices=order_statuses,
         default='not_processed',
         db_index=True
     )
-    order_payment = models.CharField(
+    payment = models.CharField(
         verbose_name='оплата',
         max_length=13,
         choices=payment_methods,
@@ -209,11 +209,11 @@ class Order(models.Model):
 
     @property
     def status(self):
-        return self.get_order_status_display()
+        return self.get_status_display()
 
     @property
     def payment(self):
-        return self.get_order_payment_display()
+        return self.get_payment_display()
 
     objects = OrderQuerySet.as_manager()
 
