@@ -207,14 +207,6 @@ class Order(models.Model):
         null=True
     )
 
-    @property
-    def status(self):
-        return self.get_processing_status_display()
-
-    @property
-    def payment(self):
-        return self.get_payment_method_display()
-
     objects = OrderQuerySet.as_manager()
 
     class Meta:
@@ -223,6 +215,14 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.firstname} {self.lastname} {self.address}"
+
+    @property
+    def status(self):
+        return self.get_processing_status_display()
+
+    @property
+    def payment(self):
+        return self.get_payment_method_display()
 
 
 class OrderItem(models.Model):
@@ -235,7 +235,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='orderes',
+        related_name='products',
         verbose_name='товар',
     )
     quantity = models.IntegerField(

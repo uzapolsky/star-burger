@@ -72,7 +72,7 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber' , 'address', 'products']
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @transaction.atomic
