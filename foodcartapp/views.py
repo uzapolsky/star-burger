@@ -65,7 +65,7 @@ class OrderItemSerializer(ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity']
-    
+
 
 class OrderSerializer(ModelSerializer):
     products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
@@ -96,5 +96,5 @@ def register_order(request):
             quantity=product['quantity'],
             price=product['product'].price
         )
-    
+
     return Response(serializer.data)
