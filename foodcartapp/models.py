@@ -137,15 +137,15 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    order_statuses = [
+    order_statuses = (
         ('processed', 'Обработаный'),
         ('not_processed', 'Необработанный')
-    ]
-    payment_methods = [
+    )
+    payment_methods = (
         ('cash', 'Наличными'),
         ('card', 'Картой'),
         ('not_selected', 'Не выбран')
-    ]
+    )
     firstname = models.CharField(
         verbose_name='имя',
         max_length=50
@@ -163,14 +163,14 @@ class Order(models.Model):
         'адрес',
         max_length=100,
     )
-    status = models.CharField(
+    processing_status = models.CharField(
         verbose_name='статус',
         max_length=13,
         choices=order_statuses,
         default='not_processed',
         db_index=True
     )
-    payment = models.CharField(
+    payment_method = models.CharField(
         verbose_name='оплата',
         max_length=13,
         choices=payment_methods,
@@ -209,11 +209,11 @@ class Order(models.Model):
 
     @property
     def status(self):
-        return self.get_status_display()
+        return self.get_processing_status_display()
 
     @property
     def payment(self):
-        return self.get_payment_display()
+        return self.get_payment_method_display()
 
     objects = OrderQuerySet.as_manager()
 
