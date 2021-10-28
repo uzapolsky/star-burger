@@ -79,8 +79,8 @@ class OrderSerializer(ModelSerializer):
 @api_view(['POST'])
 def register_order(request):
 
-    order = request.data
-    serializer = OrderSerializer(data=order)
+    order_raw = request.data
+    serializer = OrderSerializer(data=order_raw)
     serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
