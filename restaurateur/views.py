@@ -108,7 +108,7 @@ def fetch_coordinates(apikey, address):
     found_places = response.json()['response']['GeoObjectCollection']['featureMember']
 
     if not found_places:
-        return 0,0
+        return 0, 0
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
@@ -117,7 +117,7 @@ def fetch_coordinates(apikey, address):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    apikey = settings.YA_API
+    apikey = settings.YA_MAPS_API_KEY
 
     orders = Order.objects.all().get_order_price()
     all_addresses = list(orders.values_list('address', flat=True))
