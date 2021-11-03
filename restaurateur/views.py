@@ -142,9 +142,9 @@ def view_orders(request):
             Place.objects.create(address=address)
 
     restaurantmenus = RestaurantMenuItem.objects. \
+        filter(availability=True). \
         select_related('product'). \
-        select_related('restaurant'). \
-        all()
+        select_related('restaurant')
     restaurants_items = {}
     for restaurantmenu in restaurantmenus:
         rest = restaurantmenu.restaurant
