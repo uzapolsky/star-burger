@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import requests
 from django import forms
 from django.conf import settings
@@ -145,12 +147,10 @@ def view_orders(request):
         filter(availability=True). \
         select_related('product'). \
         select_related('restaurant')
-    restaurants_items = {}
+    restaurants_items = defaultdict(list)
     for restaurantmenu in restaurantmenus:
-        rest = restaurantmenu.restaurant
-        if rest not in restaurants_items.keys():
-            restaurants_items[rest] = []
-        restaurants_items[rest].append(restaurantmenu.product.id)
+        restaurants_items[restaurantmenu.restaurant].append(restaurantmenu.product.id)
+    print(restaurants_items)
 
     places = Place.objects.all()
 
@@ -174,7 +174,6 @@ def view_orders(request):
         sorted_rests = sorted(order_restaurants[order], key=lambda rest: float(rest[1]))
         rests_output = [f'{rest[0]} - {rest[1]} км \n' for rest in sorted_rests]
         order_restaurants[order] = rests_output
-    print(order_restaurants)
     return render(request, template_name='order_items.html', context={
         'orders': orders, 'restaurants': order_restaurants
     })
