@@ -119,7 +119,10 @@ def fetch_coordinates(apikey, address):
 def view_orders(request):
     apikey = settings.YA_MAPS_API_KEY
 
-    orders = Order.objects.all().get_order_price()
+    orders = Order.objects. \
+        filter(processing_status='not_processed'). \
+        order_by('-created_at'). \
+        get_order_price()
     all_addresses = list(orders.values_list('address', flat=True))
     restaurants = Restaurant.objects.all()
     all_addresses.extend(list(restaurants.values_list('address', flat=True)))
