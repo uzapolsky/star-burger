@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Prefetch
+from django.db.models.expressions import OuterRef, Subquery
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -121,10 +123,14 @@ def fetch_coordinates(apikey, address):
 def view_orders(request):
     apikey = settings.YA_MAPS_API_KEY
 
+    places = Place.objects.all()
     orders = Order.objects. \
         filter(processing_status='not_processed'). \
         order_by('-created_at'). \
-        get_order_price()
+        prefetch_related(Prefetch('order_items__product')). \
+        get_order_price(). \
+        annotate(lon=Subquery(places.filter(address=OuterRef('address')).values('lon')),
+                 lat=Subquery(places.filter(address=OuterRef('address')).values('lat')))
     all_addresses = list(orders.values_list('address', flat=True))
     restaurants = Restaurant.objects.all()
     all_addresses.extend(list(restaurants.values_list('address', flat=True)))
@@ -150,23 +156,18 @@ def view_orders(request):
     restaurants_items = defaultdict(list)
     for restaurantmenu in restaurantmenus:
         restaurants_items[restaurantmenu.restaurant].append(restaurantmenu.product.id)
-    print(restaurants_items)
-
-    places = Place.objects.all()
 
     order_restaurants = {}
     for order in orders:
-        order_items = order.order_items.select_related('product').all()
 
-        order_item_ids = [order_item.product.id for order_item in order_items]
+        order_item_ids = [order_item.product.id for order_item in order.order_items.all()]
         order_restaurants[order.id] = []
         for rest in restaurants_items.keys():
             if all(product in restaurants_items[rest] for product in order_item_ids):
-                place_rest = places.get(address=rest.address)
-                place_order = places.get(address=order.address)
+                rest_lon_lat = [(place.lon, place.lat) for place in places if place.address == rest.address][0]
 
                 dist = round(distance.distance(
-                        (place_order.lon, place_order.lat), (place_rest.lon, place_rest.lat)
+                        (order.lon, order.lat), rest_lon_lat
                     ).km, 2)
                 order_restaurants[order.id].append([rest.name, str(dist)])
 
