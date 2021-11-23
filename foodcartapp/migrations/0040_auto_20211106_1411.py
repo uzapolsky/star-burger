@@ -5,10 +5,9 @@ from django.db import migrations
 
 def set_price_to_order_items(apps, schema_editor):
     OrderItem = apps.get_model('foodcartapp', 'OrderItem')
-    for order_item in OrderItem.objects.all():
-        if not order_item.price:
-            order_item.price = order_item.product.price
-            order_item.save()
+    for order_item in OrderItem.objects.filter(price__isnull=True):
+        order_item.price = order_item.product.price
+        order_item.save()
 
 
 class Migration(migrations.Migration):
