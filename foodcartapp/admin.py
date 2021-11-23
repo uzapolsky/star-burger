@@ -108,7 +108,13 @@ class ProductAdmin(admin.ModelAdmin):
     pass
 
 
-class OrderModelAdmin(admin.ModelAdmin):
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
     form = ModelForm
 
     def response_change(self, request, obj):
@@ -119,15 +125,6 @@ class OrderModelAdmin(admin.ModelAdmin):
 
         return super().response_change(request, obj)
 
-
-class OrderItemInline(admin.TabularInline):
-    model = OrderItem
-    extra = 0
-
-
-@admin.register(Order)
-class OrderAdmin(OrderModelAdmin):
-    
     inlines = [
         OrderItemInline
     ]
