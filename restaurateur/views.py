@@ -163,9 +163,10 @@ def view_orders(request):
         order_item_ids = [order_item.product.id for order_item in order.order_items.all()]
         order_restaurants[order.id] = []
         for rest in restaurants_items.keys():
-            if all(product in restaurants_items[rest] for product in order_item_ids):
-                rest_lon_lat = [(place.lon, place.lat) for place in places if place.address == rest.address][0]
+            if (order.lon and order.lat and
+                    all(product in restaurants_items[rest] for product in order_item_ids)):
 
+                rest_lon_lat = [(place.lon, place.lat) for place in places if place.address == rest.address][0]
                 dist = round(distance.distance(
                         (order.lon, order.lat), rest_lon_lat
                     ).km, 2)
