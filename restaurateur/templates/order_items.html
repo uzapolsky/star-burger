@@ -41,7 +41,7 @@
           <details>
             <summary>Развернуть</summary>
               {% for restaurant in restaurants|get_value:order.id %}
-                <p>{{ restaurant }}</p>
+                <p>{{ restaurant.name }} - {{ restaurant.distance }}</p>
               {% endfor %}
           </details>
         </td>

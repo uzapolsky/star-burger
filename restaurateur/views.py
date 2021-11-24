@@ -169,12 +169,14 @@ def view_orders(request):
                 dist = round(distance.distance(
                         (order.lon, order.lat), rest_lon_lat
                     ).km, 2)
-                order_restaurants[order.id].append([rest.name, str(dist)])
+                order_restaurants[order.id].append({
+                    'name': rest.name,
+                    'distance': str(dist)
+                })
 
     for order in order_restaurants:
-        sorted_rests = sorted(order_restaurants[order], key=lambda rest: float(rest[1]))
-        rests_output = [f'{rest[0]} - {rest[1]} км \n' for rest in sorted_rests]
-        order_restaurants[order] = rests_output
+        sorted_rests = sorted(order_restaurants[order], key=lambda rest: float(rest['distance']))
+        order_restaurants[order] = sorted_rests
     return render(request, template_name='order_items.html', context={
         'orders': orders, 'restaurants': order_restaurants
     })
