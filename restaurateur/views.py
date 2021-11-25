@@ -131,12 +131,10 @@ def view_orders(request):
         get_order_price(). \
         annotate(lon=Subquery(places.filter(address=OuterRef('address')).values('lon')),
                  lat=Subquery(places.filter(address=OuterRef('address')).values('lat')))
-    all_addresses = list(orders.values_list('address', flat=True))
-    restaurants = Restaurant.objects.all()
-    all_addresses.extend(list(restaurants.values_list('address', flat=True)))
-    addresses_with_coordinates = list(Place.objects.all().values_list('address', flat=True))
 
-    addresses_to_add = list(set(all_addresses) - set(addresses_with_coordinates))
+    db_addresses = Place.objects.all().values_list('address', flat=True)
+    addresses_to_add = list(Restaurant.objects.exclude(address__in=db_addresses).values_list('address', flat=True))
+    addresses_to_add.extend(list(orders.exclude(address__in=db_addresses).values_list('address', flat=True)))
     for address in addresses_to_add:
         coordinates = fetch_coordinates(apikey, address)
         if coordinates:
