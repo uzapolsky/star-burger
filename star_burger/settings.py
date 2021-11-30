@@ -1,9 +1,8 @@
 import os
 
 import dj_database_url
-
+import rollbar
 from environs import Env
-
 
 env = Env()
 env.read_env()
@@ -41,6 +40,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -125,3 +125,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
 ]
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_TOKEN'),
+    'environment': env('ROLLBAR_ENVIRONMENT', 'production'),
+    'root': BASE_DIR,
+}
+rollbar.init(**ROLLBAR)
