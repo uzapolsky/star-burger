@@ -16,6 +16,7 @@ DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(' ')
 
+
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
     'restaurateur.apps.RestaurateurConfig',
