@@ -151,6 +151,15 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `YA_MAPS_API_KEY` - ключ АПИ Яндекс карт [документация](https://yandex.ru/dev/maps/)
 - `ROLLBAR_TOKEN` - токен для системы логирования ROLLBAR
 - `ROLLBAR_ENVIRONMENT` - настройка environment в Rollbar, например development
+- `DATABASE_URL` - url базы данных [примеры](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url)
+
+## Как задеплоить на сервере
+
+Подключитесь к серверу, перейдите в папку с проектом и запустите bash-скрипт [код скрипта](https://gist.github.com/uzapolsky/9533ba90455e915292aa7b4733366e91):
+
+```sh
+. /root/deploy_star_burger.sh
+```
 
 ## Цели проекта
 
