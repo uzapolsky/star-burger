@@ -155,6 +155,12 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
 ## Как задеплоить на сервере
 
+Координаты сервера:
+- домен: https://star-burger.ml/
+- IP: 91.210.169.199
+- Пользователь: root
+- Папка проекта: /opt/star-burger
+
 Подключитесь к серверу, перейдите в папку с проектом и запустите bash-скрипт [код скрипта](https://gist.github.com/uzapolsky/9533ba90455e915292aa7b4733366e91):
 
 ```sh
@@ -168,5 +174,3 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 Где используется репозиторий:
 
 - Второй и третий урок [учебного модуля Django](https://dvmn.org/modules/django/)
-
-
